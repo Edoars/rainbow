@@ -42,8 +42,6 @@ public class RainbowScheme {
 	 * @param skPath the path of the file containing the secret key
 	 * @param filePath the path of the file that is to be signed
 	 * @param signaturePath the path of the signature generated
-	 * @exception Exception
-	 * @exception IOException
 	 */
 	public static void sign(String skPath, String filePath, String signaturePath) {
 		RainbowSecKey sk = RainbowSecKey.loadKey(skPath);
@@ -96,8 +94,6 @@ public class RainbowScheme {
 	 * @param filePath path to the signed file
 	 * @param signaturePath path to the signature
 	 * @return true if the signature is valid, false otherwise
-	 * @exception FileNotFoundException if the signature path doesn't lead to a file
-	 * @exception IOException 
 	 */
 	public static boolean verify(String pkPath, String filePath, String signaturePath) {
 		RainbowPubKey pk = RainbowPubKey.loadKey(pkPath);

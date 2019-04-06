@@ -64,8 +64,6 @@ class RainbowKeyPair {
 	 * Writes the private and secret key onto two files.
 	 * @param pkPath the path of the file onto which the public key is to be written
 	 * @param skPath the path of the file onto which the private key is to be written
-	 * @exception Exception if WHATTHEWHAT
-	 * @exception IOException if either of the paths is not valid
 	 */
 	public void saveKeys(String pkPath, String skPath) {
 		FileOutputStream fout = null;

@@ -19,10 +19,9 @@ import java.io.Serializable;
  * </li>
  * </ul>
  * <p>
- * This class provides a different constructor for each type of MultQuad, where the linear component, quadratic component and free term are stored separately in appropriately sized structures as matrices, vectors or single elements of GF16. 
+ * This class provides a different constructor for each type of MultQuad, where the linear component, quadratic component and free term are stored separately in appropriately sized structures as matrices, vectors or single elements of GF16.
  * <p>
  * This class also provides multiple {@code eval} methods, for differently typed MultQuads.
- * <p>
  */
 public class MultQuad implements Serializable{
 	private static final long serialVersionUID = 1L;
@@ -46,7 +45,6 @@ public class MultQuad implements Serializable{
 	/**
 	 * <p>
 	 * A label telling us how this MultQuad is composed.
-	 * <p> 
 	 * <ul>
 	 * <li>
 	 * {@code type=0} if this MultQuad is total, consisting of both a linear and quadratic component as well as a free term;

@@ -16,10 +16,10 @@ import sc1819.rainbow.util.*;
  * A secret key consists of:
  * <ul>
  * <li>
- * two affine maps {@code T}:(GF16)<sup>n</sup>->(GF16)<sup>n</sup> and {@code S}:(GF16)<sup>m</sup>->(GF16)<sup>m</sup>;
+ * two affine maps {@code T}:(GF16)<sup>n</sup>-{@literal >}(GF16)<sup>n</sup> and {@code S}:(GF16)<sup>m</sup>-{@literal >}(GF16)<sup>m</sup>;
  * </li>
  * <li>
- * a central map {@code F}:(GF16)<sup>n</sup>->(GF16)<sup>m</sup>.
+ * a central map {@code F}:(GF16)<sup>n</sup>-{@literal >}(GF16)<sup>m</sup>.
  * </li>
  * </ul>
  * This class also provides a method for loading a secret key from a file.
@@ -66,11 +66,6 @@ class RainbowSecKey implements Serializable {
 	 * 
 	 * @param path the path of the file containing the key to be loaded
 	 * @return the secret key loaded from the file
-	 * @exception FileNotFoundException 
-	 * @exception ClassCastException 
-	 * @exception ClassNotFoundException 
-	 * @exception StreamCorruptedException 
-	 * @exception IOException 
 	 */
 	public static RainbowSecKey loadKey(String path) {
 		RainbowSecKey sk = null;

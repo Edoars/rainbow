@@ -12,7 +12,7 @@ import sc1819.rainbow.util.*;
  * This class represents the public key for the Rainbow Signature Scheme.
  * <p>
  * A public key consists of a single map given by the composition 
- * {@code P=S} &#176 {@code F} &#176 {@code T},&nbsp; where {@code T,S} and {@code F} are the maps of the corresponding private key.
+ * {@code P=S} ° {@code F} ° {@code T}; where {@code T,S} and {@code F} are the maps of the corresponding private key.
  * <p>
  * The public map {@code P}  is a system of {@code m} multivariate quadratic polynomials in {@code n} variables. 
  * 
@@ -241,11 +241,6 @@ public class RainbowPubKey implements Serializable{
 	 * 
 	 * @param path the path of the file containing the key to be loaded
 	 * @return the public key loaded from the file
-	 * @exception FileNotFoundException if the path doeasn't lead to a file
-	 * @exception ClassCastException if the file is not a valid public key
-	 * @exception ClassNotFoundException if the file is not a valid public key???
-	 * @exception StreamCorruptedException if the file is not a valid public key??
-	 * @exception IOException ??
 	 */
 	public static RainbowPubKey loadKey(String path) {
 		RainbowPubKey pk = null;
