@@ -62,14 +62,10 @@ public class RainbowPubKey implements Serializable{
 			oi = layer.getOi();
 			
 			vtv = new byte[vi]; //Copia di vt sulle variabili vinegar
-			for (int i = 0; i < vi; i++) {
-				vtv[i] = vt[i];
-			}
+			System.arraycopy(vt, 0, vtv, 0, vi);
 			
 			vto = new byte[oi];
-			for (int i = vi; i < vi+oi; i++) {
-				vto[i-vi] = vt[i];
-			}
+			System.arraycopy(vt, vi, vto, 0, vi + oi - vi);
 			
 			for(MultQuad[] poly : layer.getPoly()) {
 				//vv: Alpha
@@ -256,16 +252,12 @@ public class RainbowPubKey implements Serializable{
 		} catch (FileNotFoundException ex) {
 			System.out.println(path+" not found!");
 			System.exit(1);
-		} catch (ClassCastException ex) {
+		} catch (ClassCastException | StreamCorruptedException ex) {
 			System.out.println(path+" is not a valid public key!");
 			System.exit(1);
-		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();//
-		} catch (StreamCorruptedException ex) {
-			System.out.println(path+" is not a valid public key!");
+		} catch (ClassNotFoundException | IOException ex) {
+			ex.printStackTrace();
 			System.exit(1);
-		} catch (IOException ex) {
-			ex.printStackTrace();//DA MODIFICARE
 		} finally {
 
 			if (fin != null) {

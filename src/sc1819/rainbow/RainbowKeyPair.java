@@ -1,8 +1,9 @@
 package sc1819.rainbow;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.SecureRandom;
-import sc1819.rainbow.RainbowParameters;
 
 
 /**
@@ -45,9 +46,7 @@ class RainbowKeyPair {
 	 */
 	public RainbowKeyPair(SecureRandom random) {
 		this.sk = new RainbowSecKey(param, random);
-		//System.out.println("Privata generata");
 		this.pk = new RainbowPubKey(sk);
-		//System.out.println("Pubblica generata");
 	}
 	
 	/**

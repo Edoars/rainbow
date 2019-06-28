@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.io.StreamCorruptedException;
 import java.security.SecureRandom;
 import sc1819.rainbow.RainbowParameters;
 import sc1819.rainbow.util.*;
@@ -80,16 +79,9 @@ class RainbowSecKey implements Serializable {
 		} catch (FileNotFoundException ex) {
 			System.out.println(path+" not found!");
 			System.exit(1);
-		} catch (ClassCastException ex) {
+		} catch (ClassCastException | ClassNotFoundException | IOException ex) {
 			System.out.println(path+" is not a valid private key!");
 			System.exit(1);
-		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();//
-		} catch (StreamCorruptedException ex) {
-			System.out.println(path+" is not a valid private key!");
-			System.exit(1);
-		} catch (IOException ex) {
-			ex.printStackTrace();//DA MODIFICARE
 		} finally {
 
 			if (fin != null) {
