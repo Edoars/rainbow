@@ -149,7 +149,6 @@ public class MultQuad implements Serializable {
         byte[][] QQuad = Q.getQuad();
         byte[] PLin = P.getLin();
         byte[] QLin = Q.getLin();
-        //hjgguguy
 
         if (PQuad.length != QQuad.length || PQuad[0].length != QQuad[0].length || PLin.length != QLin.length) {
             throw new IllegalArgumentException("MultQuad di dim diverse!");

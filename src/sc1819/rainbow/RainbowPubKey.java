@@ -44,6 +44,40 @@ public class RainbowPubKey implements Serializable{
 		
 		
 		//Composition of F and T
+		compositionOfFAndT(F, T, vt);
+
+		//Composition of S and (F°T)
+		compositionOfSAndFcompT(sk);
+	}
+
+	private void compositionOfSAndFcompT(RainbowSecKey sk) {
+		MultQuad tmpP;
+		byte[][] S = sk.getS().getMatrix();
+		byte[] vs = sk.getS().getVector();
+		MultQuad[] tmpSP = new MultQuad[m];
+		//Se y è il vettore dei polinomi e la mappa affine è data da S+v
+		//il prodotto Sy manderà ogni polinomio in una combinazione lineare di polinomi
+		//ci basterà quindi un metodo che mandi un polinomio in un suo multiplo per poi usare
+		//il metodo combine di MultQuad
+
+		//Applico S
+		for (int i = 0; i < m; i++) {
+			tmpP = MultQuad.mult(P[0], S[i][0]);
+			for (int j = 1; j < m; j++) {
+				tmpP = MultQuad.combine(tmpP, MultQuad.mult(P[j], S[i][j]));
+			}
+
+			tmpSP[i] = tmpP;
+		}
+
+		//Applico vs
+		for (int i = 0; i < m; i++) {
+			tmpSP[i].addTerm(vs[i]);
+			P[i] = tmpSP[i];
+		}
+	}
+
+	private void compositionOfFAndT(CentralMap f, byte[][] t, byte[] vt) {
 		int vi, oi;
 		int pCount = 0;
 		byte[][] quad;
@@ -55,168 +89,170 @@ public class RainbowPubKey implements Serializable{
 		byte tmp;
 		byte[] tmpV;
 		MultQuad tmpP;
-		
+
 		byte[] vtv, vto;
-		for (Layer layer : F.getLayers()) {
+		for (Layer layer : f.getLayers()) {
 			vi = layer.getVi();
 			oi = layer.getOi();
-			
+
 			vtv = new byte[vi]; //Copia di vt sulle variabili vinegar
 			System.arraycopy(vt, 0, vtv, 0, vi);
-			
+
 			vto = new byte[oi];
-			System.arraycopy(vt, vi, vto, 0, vi + oi - vi);
-			
+			System.arraycopy(vt, vi, vto, 0, oi);
+
 			for(MultQuad[] poly : layer.getPoly()) {
 				//vv: Alpha
 				coeffQ = new byte[n][n];
 				quad = poly[0].getQuad();
-				
+
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						for (int k = 0; k < vi; k++) {
 							tmp = 0;
-							
+
 							for (int h = 0; h < k+1; h++) {
-								tmp = GF16.add(tmp, GF16.mult(T[h][i], quad[h][k]));
+								tmp = GF16.add(tmp, GF16.mult(t[h][i], quad[h][k]));
 							}
-							
-							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, T[k][j]));
+
+							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, t[k][j]));
 						}
 					}
 				}
-				
+
+				//coeffQ = composeQuadratic(poly[0].getQuad(), t, 0, vi, 0, vi, n);
+
 				tmpV = GF16.prodVectMat(vtv, quad);
 				coeffL = new byte[n];
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < vi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j], T[j][i]));
+						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j], t[j][i]));
 					}
 				}
-				
+
 				tmpV = GF16.prodMatVec(quad, vtv);
 				coeffL2 = new byte[n];
 				for (int j = 0; j < n; j++) {
 					for (int i = 0; i < vi; i++) {
-						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(T[i][j], tmpV[i]));
+						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(t[i][j], tmpV[i]));
 					}
 				}
-				
+
 				for (int i = 0; i < n; i++) {
 					coeffL[i] = GF16.add(coeffL[i], coeffL2[i]);
 				}
-				
+
 				coeffT = GF16.prodVecVec(GF16.prodVectMat(vtv, quad), vtv);
-				
+
 				P[pCount] = new MultQuad(coeffQ, coeffL, coeffT);
-				
+
 				//vo: beta
 				coeffQ = new byte[n][n];
 				quad = poly[1].getQuad();
-				
+
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						for (int k = vi; k < vi+oi; k++) {
 							tmp = 0;
-							
+
 							for (int h = 0; h < vi; h++) {
-								tmp = GF16.add(tmp, GF16.mult(T[h][i], quad[h][k-vi]));
+								tmp = GF16.add(tmp, GF16.mult(t[h][i], quad[h][k-vi]));
 							}
-							
-							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, T[k][j]));
+
+							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, t[k][j]));
 						}
 					}
 				}
-				
+
 				tmpV = GF16.prodVectMat(vtv, quad);
 				coeffL = new byte[n];
 				for (int i = 0; i < n; i++) {
 					for (int j = vi; j < vi+oi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j-vi], T[j][i]));
+						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j-vi], t[j][i]));
 					}
 				}
-				
+
 				tmpV = GF16.prodMatVec(quad, vto);
 				coeffL2 = new byte[n];
 				for (int j = 0; j < n; j++) {
 					for (int i = 0; i < vi; i++) {
-						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(T[i][j], tmpV[i]));
+						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(t[i][j], tmpV[i]));
 					}
 				}
-				
+
 				for (int i = 0; i < n; i++) {
 					coeffL[i] = GF16.add(coeffL[i], coeffL2[i]);
 				}
-				
+
 				coeffT = GF16.prodVecVec(GF16.prodVectMat(vtv, quad), vto);
-				
+
 				tmpP = new MultQuad(coeffQ, coeffL, coeffT);
 				P[pCount] = MultQuad.combine(P[pCount], tmpP);
-				
+
 				//vv:term + vv:lin + o-lin
 				coeffQ = new byte[n][n];
 				lin = poly[0].getLin();
-				
+
 				coeffL = new byte[n];
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < vi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j], T[j][i]));
+						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j], t[j][i]));
 					}
 				}
-				
+
 				/*tmpV = new byte[vi];
 				for (int i = 0; i < vi; i++) {
 					tmpV[i] = lin[i];
 				}*/
-				
+
 				coeffT = GF16.prodVecVec(lin, vtv);
-				
+
 				lin = poly[2].getLin();
 				for (int i = 0; i < n; i++) {
 					for (int j = vi; j < vi+oi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j-vi], T[j][i]));
+						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j-vi], t[j][i]));
 					}
 				}
-				
+
 				coeffT = GF16.add(coeffT, GF16.prodVecVec(lin, vto));
-				
+
 				//Aggiungo vv:term
 				tmp = poly[0].getTerm();
 				coeffT = GF16.add(coeffT, tmp);
-				
+
 				tmpP = new MultQuad(coeffQ, coeffL, coeffT);
 				P[pCount] = MultQuad.combine(P[pCount], tmpP);
-				
+
 				pCount++;
 			}
 		}
-		
-		//Composition of S and (F°T)
-		byte[][] S = sk.getS().getMatrix();
-		byte[] vs = sk.getS().getVector();
-		MultQuad[] tmpSP = new MultQuad[m];
-		//Se y è il vettore dei polinomi e la mappa affine è data da S+v
-		//il prodotto Sy manderà ogni polinomio in una combinazione lineare di polinomi
-		//ci basterà quindi un metodo che mandi un polinomio in un suo multiplo per poi usare
-		//il metodo combine di MultQuad
-		
-		//Applico S
-		for (int i = 0; i < m; i++) {
-			tmpP = MultQuad.mult(P[0], S[i][0]);
-			for (int j = 1; j < m; j++) {
-				tmpP = MultQuad.combine(tmpP, MultQuad.mult(P[j], S[i][j]));
-			}
-			
-			tmpSP[i] = tmpP;
-		}
-		
-		//Applico vs
-		for (int i = 0; i < m; i++) {
-			tmpSP[i].addTerm(vs[i]);
-			P[i] = tmpSP[i];
-		}
 	}
-	
+
+	private byte[][] composeQuadratic(byte[][] quad, byte[][] affineMat, int startRow, int endRow, int startCol, int endCol, int mapSize) {
+		byte[][] res = new byte[mapSize][mapSize];
+		byte colFactor;
+		int rowIndex, colIndex;
+
+		for (int i = 0; i < mapSize; i++) {
+			for (int j = 0; j < mapSize; j++) {
+				for (int k = startCol; k < endCol; k++) {
+					colFactor = 0;
+
+					for (int h = startRow; h < endRow; h++) {
+						rowIndex = h - startRow;
+						colIndex = k - startCol;
+
+						colFactor = GF16.add(colFactor, GF16.mult(affineMat[h][i], quad[rowIndex][colIndex]));
+					}
+
+					res[i][j] = GF16.add(res[i][j], GF16.mult(colFactor, affineMat[k][j]));
+				}
+			}
+		}
+
+		return  res;
+	}
+
 	/**
 	 * Returns the evaluation of this public map on an array of field elements.
 	 * @param x the array on which the map is evaluated
