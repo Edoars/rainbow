@@ -52,6 +52,13 @@ public class RainbowPubKey implements Serializable{
         compositionOfSAndFcompT(S, vs);
 	}
 
+	/**
+	 * Composes the central map {@code F} and the affine map {@code T}.
+	 *
+	 * @param f  the central map.
+	 * @param t  the affine map matrix.
+	 * @param vt the affine map vector.
+	 */
 	private void compositionOfFAndT(CentralMap f, byte[][] t, byte[] vt) {
 		int vi, oi;
 		byte[][] coeffQ;
@@ -129,6 +136,11 @@ public class RainbowPubKey implements Serializable{
 		}
 	}
 
+	/**
+	 * Composes the affine map {@code S} and the map {@code F°T}.
+	 * @param s the affine map matrix.
+	 * @param vs the affine map vector.
+     */
     private void compositionOfSAndFcompT(byte[][] s, byte[] vs) {
         MultQuad poly;
         MultQuad[] polyArray = new MultQuad[m];
@@ -151,9 +163,23 @@ public class RainbowPubKey implements Serializable{
         for (int i = 0; i < m; i++) {
             polyArray[i].addTerm(vs[i]);
             P[i] = polyArray[i];
-        }
-    }
+		}
+	}
 
+	/**
+	 * Compose the quadratic part of a polynomial with a linear map.
+	 * The quadratic part is seen as a n*n matrix where
+	 * - the i-th row is zero if startRow > i or i <= endRow.
+	 * - the j-th row is zero if startCol > j or j <= endCol.
+	 * @param quad the coefficients of the quadratic component.
+	 * @param affineMat the linear map.
+	 * @param startRow the index of the first nonzero row of the quadratic part.
+	 * @param endRow the index of the last nonzero row of the quadratic part.
+	 * @param startCol the index of the first nonzero column of the quadratic part.
+	 * @param endCol the index of the last nonzero column of the quadratic part.
+	 * @param mapSize the size of the resultant map.
+	 * @return the matrix A' where a'_i,j = (T e_i) A (T e_j).
+     */
 	private byte[][] composeQuadraticWithMatrix(byte[][] quad, byte[][] affineMat, int startRow, int endRow, int startCol, int endCol, int mapSize) {
 		byte[][] res = new byte[mapSize][mapSize];
 		byte colFactor;
@@ -176,9 +202,20 @@ public class RainbowPubKey implements Serializable{
 			}
 		}
 
-		return  res;
+		return res;
 	}
 
+	/**
+	 * Compose the linear part of a polynomial with a linear map.
+	 * The linear part is seen as a vector of length n,
+	 * where the j-th element is zero if j < start or j >= end.
+	 * @param lin the coefficients of the linear part.
+	 * @param affineMat the linear map.
+	 * @param start the index of the first nonzero component of the linear part.
+	 * @param end the index of the last nonzero component of the linear part.
+	 * @param mapSize the size of the resultant map.
+	 * @return the vector L' with l'_j = L (T e_j).
+     */
 	private byte[] composeLinearWithMatrix(byte[] lin, byte[][] affineMat, int start, int end, int mapSize) {
 		byte[] res = new byte[mapSize];
 		int index;
@@ -193,6 +230,17 @@ public class RainbowPubKey implements Serializable{
 		return res;
 	}
 
+	/**
+	 * Compose a linear map with the linear part of a polynomial.
+	 * The linear part is seen as a vector of length n,
+	 * where the i-th element is zero if i < start or i >= end.
+	 * @param lin the coefficients of the linear part.
+	 * @param affineMat the linear map.
+	 * @param start the index of the first nonzero component of the linear part.
+	 * @param end the index of the last nonzero component of the linear part.
+	 * @param mapSize the size of the resultant map.
+	 * @return the vector L' with l'_i = (T e_i) L.
+     */
 	private byte[] composeMatrixWithLinear(byte[] lin, byte[][] affineMat, int start, int end, int mapSize) {
 		byte[] res = new byte[mapSize];
 		int index;
