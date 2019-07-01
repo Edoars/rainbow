@@ -35,45 +35,21 @@ public class RainbowPubKey implements Serializable{
 	public RainbowPubKey(RainbowSecKey sk) {
 		n = sk.getVarNum();
 		m = sk.getEqNum();
-		
-		P = new MultQuad[sk.getEqNum()];
+
+        P = new MultQuad[m];
+
+        //Composition of F and T
 		byte[][] T = sk.getT().getMatrix();
 		byte[] vt = sk.getT().getVector();
 		CentralMap F = sk.getF();
-		
-		
-		//Composition of F and T
+
 		compositionOfFAndT(F, T, vt);
 
 		//Composition of S and (F°T)
-		compositionOfSAndFcompT(sk);
-	}
+        byte[][] S = sk.getS().getMatrix();
+        byte[] vs = sk.getS().getVector();
 
-	private void compositionOfSAndFcompT(RainbowSecKey sk) {
-		MultQuad tmpP;
-		byte[][] S = sk.getS().getMatrix();
-		byte[] vs = sk.getS().getVector();
-		MultQuad[] tmpSP = new MultQuad[m];
-		//Se y è il vettore dei polinomi e la mappa affine è data da S+v
-		//il prodotto Sy manderà ogni polinomio in una combinazione lineare di polinomi
-		//ci basterà quindi un metodo che mandi un polinomio in un suo multiplo per poi usare
-		//il metodo combine di MultQuad
-
-		//Applico S
-		for (int i = 0; i < m; i++) {
-			tmpP = MultQuad.mult(P[0], S[i][0]);
-			for (int j = 1; j < m; j++) {
-				tmpP = MultQuad.combine(tmpP, MultQuad.mult(P[j], S[i][j]));
-			}
-
-			tmpSP[i] = tmpP;
-		}
-
-		//Applico vs
-		for (int i = 0; i < m; i++) {
-			tmpSP[i].addTerm(vs[i]);
-			P[i] = tmpSP[i];
-		}
+        compositionOfSAndFcompT(S, vs);
 	}
 
 	private void compositionOfFAndT(CentralMap f, byte[][] t, byte[] vt) {
@@ -152,6 +128,31 @@ public class RainbowPubKey implements Serializable{
 			}
 		}
 	}
+
+    private void compositionOfSAndFcompT(byte[][] s, byte[] vs) {
+        MultQuad poly;
+        MultQuad[] polyArray = new MultQuad[m];
+        //Se y è il vettore dei polinomi e la mappa affine è data da S+v
+        //il prodotto Sy manderà ogni polinomio in una combinazione lineare di polinomi
+        //ci basterà quindi un metodo che mandi un polinomio in un suo multiplo per poi usare
+        //il metodo combine di MultQuad
+
+        //Applico S
+        for (int i = 0; i < m; i++) {
+            poly = MultQuad.mult(P[0], s[i][0]);
+            for (int j = 1; j < m; j++) {
+                poly = MultQuad.combine(poly, MultQuad.mult(P[j], s[i][j]));
+            }
+
+            polyArray[i] = poly;
+        }
+
+        //Applico vs
+        for (int i = 0; i < m; i++) {
+            polyArray[i].addTerm(vs[i]);
+            P[i] = polyArray[i];
+        }
+    }
 
 	private byte[][] composeQuadraticWithMatrix(byte[][] quad, byte[][] affineMat, int startRow, int endRow, int startCol, int endCol, int mapSize) {
 		byte[][] res = new byte[mapSize][mapSize];
