@@ -1,12 +1,11 @@
 package sc1819.rainbow;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.io.StreamCorruptedException;
-import sc1819.rainbow.util.*;
+import sc1819.rainbow.util.CentralMap;
+import sc1819.rainbow.util.GF16;
+import sc1819.rainbow.util.Layer;
+import sc1819.rainbow.util.MultQuad;
+
+import java.io.*;
 
 /**
  * This class represents the public key for the Rainbow Signature Scheme.
@@ -79,156 +78,82 @@ public class RainbowPubKey implements Serializable{
 
 	private void compositionOfFAndT(CentralMap f, byte[][] t, byte[] vt) {
 		int vi, oi;
-		int pCount = 0;
-		byte[][] quad;
-		byte[] lin;
 		byte[][] coeffQ;
-		byte[] coeffL;
-		byte[] coeffL2;
+		byte[] coeffL, coeffL1, coeffL2;
 		byte coeffT;
-		byte tmp;
-		byte[] tmpV;
-		MultQuad tmpP;
 
 		byte[] vtv, vto;
+
+		byte[][] quad;
+		byte[] lin;
+
+		int index = 0;
+
 		for (Layer layer : f.getLayers()) {
 			vi = layer.getVi();
 			oi = layer.getOi();
 
-			vtv = new byte[vi]; //Copia di vt sulle variabili vinegar
+			vtv = new byte[vi]; // copy of Vinegar variables of vt
 			System.arraycopy(vt, 0, vtv, 0, vi);
 
-			vto = new byte[oi];
+			vto = new byte[oi]; // copy of Oil variables of vt
 			System.arraycopy(vt, vi, vto, 0, oi);
 
-			for(MultQuad[] poly : layer.getPoly()) {
+			for (MultQuad[] poly : layer.getPoly()) {
 				//vv: Alpha
-				coeffQ = new byte[n][n];
 				quad = poly[0].getQuad();
 
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						for (int k = 0; k < vi; k++) {
-							tmp = 0;
+				coeffQ = composeQuadraticWithMatrix(quad, t, 0, vi, 0, vi, n);
 
-							for (int h = 0; h < k+1; h++) {
-								tmp = GF16.add(tmp, GF16.mult(t[h][i], quad[h][k]));
-							}
-
-							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, t[k][j]));
-						}
-					}
-				}
-
-				//coeffQ = composeQuadratic(poly[0].getQuad(), t, 0, vi, 0, vi, n);
-
-				tmpV = GF16.prodVectMat(vtv, quad);
-				coeffL = new byte[n];
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < vi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j], t[j][i]));
-					}
-				}
-
-				tmpV = GF16.prodMatVec(quad, vtv);
-				coeffL2 = new byte[n];
-				for (int j = 0; j < n; j++) {
-					for (int i = 0; i < vi; i++) {
-						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(t[i][j], tmpV[i]));
-					}
-				}
-
-				for (int i = 0; i < n; i++) {
-					coeffL[i] = GF16.add(coeffL[i], coeffL2[i]);
-				}
+				coeffL1 = composeLinearWithMatrix(GF16.prodVectMat(vtv, quad), t, 0, vi, n);
+				coeffL2 = composeMatrixWithLinear(GF16.prodMatVec(quad, vtv), t, 0, vi, n);
+				coeffL = GF16.addVectors(coeffL1, coeffL2);
 
 				coeffT = GF16.prodVecVec(GF16.prodVectMat(vtv, quad), vtv);
 
-				P[pCount] = new MultQuad(coeffQ, coeffL, coeffT);
+				P[index] = new MultQuad(coeffQ, coeffL, coeffT);
 
-				//vo: beta
-				coeffQ = new byte[n][n];
+				//vo: Beta
 				quad = poly[1].getQuad();
 
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						for (int k = vi; k < vi+oi; k++) {
-							tmp = 0;
+				coeffQ = composeQuadraticWithMatrix(quad, t, 0, vi, vi, vi + oi, n);
 
-							for (int h = 0; h < vi; h++) {
-								tmp = GF16.add(tmp, GF16.mult(t[h][i], quad[h][k-vi]));
-							}
-
-							coeffQ[i][j] = GF16.add(coeffQ[i][j], GF16.mult(tmp, t[k][j]));
-						}
-					}
-				}
-
-				tmpV = GF16.prodVectMat(vtv, quad);
-				coeffL = new byte[n];
-				for (int i = 0; i < n; i++) {
-					for (int j = vi; j < vi+oi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(tmpV[j-vi], t[j][i]));
-					}
-				}
-
-				tmpV = GF16.prodMatVec(quad, vto);
-				coeffL2 = new byte[n];
-				for (int j = 0; j < n; j++) {
-					for (int i = 0; i < vi; i++) {
-						coeffL2[j] = GF16.add(coeffL2[j], GF16.mult(t[i][j], tmpV[i]));
-					}
-				}
-
-				for (int i = 0; i < n; i++) {
-					coeffL[i] = GF16.add(coeffL[i], coeffL2[i]);
-				}
+				coeffL1 = composeLinearWithMatrix(GF16.prodVectMat(vtv, quad), t, vi, vi + oi, n);
+				coeffL2 = composeMatrixWithLinear(GF16.prodMatVec(quad, vto), t, 0, vi, n);
+				coeffL = GF16.addVectors(coeffL1, coeffL2);
 
 				coeffT = GF16.prodVecVec(GF16.prodVectMat(vtv, quad), vto);
 
-				tmpP = new MultQuad(coeffQ, coeffL, coeffT);
-				P[pCount] = MultQuad.combine(P[pCount], tmpP);
+				P[index] = MultQuad.combine(P[index], new MultQuad(coeffQ, coeffL, coeffT));
 
 				//vv:term + vv:lin + o-lin
-				coeffQ = new byte[n][n];
+				//vv:lin
 				lin = poly[0].getLin();
 
-				coeffL = new byte[n];
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < vi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j], t[j][i]));
-					}
-				}
+				coeffQ = new byte[n][n];
 
-				/*tmpV = new byte[vi];
-				for (int i = 0; i < vi; i++) {
-					tmpV[i] = lin[i];
-				}*/
-
+				coeffL1 = composeLinearWithMatrix(lin, t, 0, vi, n);
 				coeffT = GF16.prodVecVec(lin, vtv);
 
+				//o-lin
 				lin = poly[2].getLin();
-				for (int i = 0; i < n; i++) {
-					for (int j = vi; j < vi+oi; j++) {
-						coeffL[i] = GF16.add(coeffL[i], GF16.mult(lin[j-vi], t[j][i]));
-					}
-				}
+
+				coeffL2 = composeLinearWithMatrix(lin, t, vi, vi + oi, n);
+				coeffL = GF16.addVectors(coeffL1, coeffL2);
 
 				coeffT = GF16.add(coeffT, GF16.prodVecVec(lin, vto));
 
-				//Aggiungo vv:term
-				tmp = poly[0].getTerm();
-				coeffT = GF16.add(coeffT, tmp);
+				//vv:term
+				coeffT = GF16.add(coeffT, poly[0].getTerm());
 
-				tmpP = new MultQuad(coeffQ, coeffL, coeffT);
-				P[pCount] = MultQuad.combine(P[pCount], tmpP);
+				P[index] = MultQuad.combine(P[index], new MultQuad(coeffQ, coeffL, coeffT));
 
-				pCount++;
+				index++;
 			}
 		}
 	}
 
-	private byte[][] composeQuadratic(byte[][] quad, byte[][] affineMat, int startRow, int endRow, int startCol, int endCol, int mapSize) {
+	private byte[][] composeQuadraticWithMatrix(byte[][] quad, byte[][] affineMat, int startRow, int endRow, int startCol, int endCol, int mapSize) {
 		byte[][] res = new byte[mapSize][mapSize];
 		byte colFactor;
 		int rowIndex, colIndex;
@@ -251,6 +176,34 @@ public class RainbowPubKey implements Serializable{
 		}
 
 		return  res;
+	}
+
+	private byte[] composeLinearWithMatrix(byte[] lin, byte[][] affineMat, int start, int end, int mapSize) {
+		byte[] res = new byte[mapSize];
+		int index;
+
+		for (int j = 0; j < mapSize; j++) {
+			for (int i = start; i < end; i++) {
+				index = i - start;
+				res[j] = GF16.add(res[j], GF16.mult(lin[index], affineMat[i][j]));
+			}
+		}
+
+		return res;
+	}
+
+	private byte[] composeMatrixWithLinear(byte[] lin, byte[][] affineMat, int start, int end, int mapSize) {
+		byte[] res = new byte[mapSize];
+		int index;
+
+		for (int i = 0; i < mapSize; i++) {
+			for (int j = start; j < end; j++) {
+				index = j - start;
+				res[i] = GF16.add(res[i], GF16.mult(affineMat[j][i], lin[index]));
+			}
+		}
+
+		return res;
 	}
 
 	/**
