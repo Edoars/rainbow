@@ -3,3 +3,7 @@
 !src/**
 !.gitignore
 !rainbow.iml
+
+# Test classes
+src/sc1819/rainbow/util/Debug.java
+src/sc1819/rainbow/RainbowPubKeyTest.java
