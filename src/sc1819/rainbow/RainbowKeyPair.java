@@ -13,128 +13,134 @@ import java.security.SecureRandom;
  */
 class RainbowKeyPair {
 
-	/**
-	 * The public key of this key pair.
-	 */
-	private RainbowPubKey pk;
-	/**
-	 * The private key of this key pair.
-	 */
-	private RainbowSecKey sk;
-	/**
-	 * The parameters of this Rainbow key pair.
-	 */
-	private RainbowParameters param = new RainbowParameters();
-	
-	/**
-	 * Constructor, loads a secret key and a public key from two files.
-	 * @param pkPath the path of the public key
-	 * @param skPath the path of the secret key
-	 * @throws IllegalStateException if either of the paths is null
-	 */
-	public RainbowKeyPair(String pkPath, String skPath) {
-		loadKeys(pkPath, skPath);
-		
-		if (pk == null || sk == null) {
-			throw new IllegalStateException("Unable to load keys");
-		}
-	}
-	
-	/**
-	 * Constructor, given a source of random field elements, generates a key pair. 
-	 * @param random the source of random field elements
-	 */
-	public RainbowKeyPair(SecureRandom random) {
-		this.sk = new RainbowSecKey(param, random);
-		this.pk = new RainbowPubKey(sk);
-	}
-	
-	/**
-	 * Loads both a public and a private key into this key pair.
-	 * @param pkPath the path of the public key to be loaded
-	 * @param skPath the path of the secret key to be loaded
-	 */
-	public void loadKeys(String pkPath, String skPath) {
-		this.pk = RainbowPubKey.loadKey(pkPath);
-		this.sk = RainbowSecKey.loadKey(skPath);
-	}
-	
-	/**
-	 * Writes the private and secret key onto two files.
-	 * @param pkPath the path of the file onto which the public key is to be written
-	 * @param skPath the path of the file onto which the private key is to be written
-	 */
-	public void saveKeys(String pkPath, String skPath) {
-		FileOutputStream fout = null;
-		ObjectOutputStream oos = null;
+    /**
+     * The public key of this key pair.
+     */
+    private RainbowPubKey pk;
+    /**
+     * The private key of this key pair.
+     */
+    private RainbowSecKey sk;
+    /**
+     * The parameters of this Rainbow key pair.
+     */
+    private RainbowParameters param = new RainbowParameters();
 
-		try {
-			fout = new FileOutputStream(pkPath);
-			oos = new ObjectOutputStream(fout);
-			oos.writeObject(pk);
+    /**
+     * Constructor, loads a secret key and a public key from two files.
+     *
+     * @param pkPath the path of the public key
+     * @param skPath the path of the secret key
+     * @throws IllegalStateException if either of the paths is null
+     */
+    public RainbowKeyPair(String pkPath, String skPath) {
+        loadKeys(pkPath, skPath);
 
-			fout = new FileOutputStream(skPath);
-			oos = new ObjectOutputStream(fout);
-			oos.writeObject(sk);
+        if (pk == null || sk == null) {
+            throw new IllegalStateException("Unable to load keys");
+        }
+    }
 
-			//System.out.println("Done");
+    /**
+     * Constructor, given a source of random field elements, generates a key pair.
+     *
+     * @param random the source of random field elements
+     */
+    public RainbowKeyPair(SecureRandom random) {
+        this.sk = new RainbowSecKey(param, random);
+        this.pk = new RainbowPubKey(sk);
+    }
 
-		} catch (Exception ex) {
+    /**
+     * Loads both a public and a private key into this key pair.
+     *
+     * @param pkPath the path of the public key to be loaded
+     * @param skPath the path of the secret key to be loaded
+     */
+    public void loadKeys(String pkPath, String skPath) {
+        this.pk = RainbowPubKey.loadKey(pkPath);
+        this.sk = RainbowSecKey.loadKey(skPath);
+    }
 
-			ex.printStackTrace();
+    /**
+     * Writes the private and secret key onto two files.
+     *
+     * @param pkPath the path of the file onto which the public key is to be written
+     * @param skPath the path of the file onto which the private key is to be written
+     */
+    public void saveKeys(String pkPath, String skPath) {
+        FileOutputStream fout = null;
+        ObjectOutputStream oos = null;
 
-		} finally {
+        try {
+            fout = new FileOutputStream(pkPath);
+            oos = new ObjectOutputStream(fout);
+            oos.writeObject(pk);
 
-			if (fout != null) {
-				try {
-					fout.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+            fout = new FileOutputStream(skPath);
+            oos = new ObjectOutputStream(fout);
+            oos.writeObject(sk);
 
-			if (oos != null) {
-				try {
-					oos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+            //System.out.println("Done");
 
-		}
-	}
-	
-	/**
-	 * Returns the private key f this key pair.
-	 * @return the private key
-	 */
-	public RainbowSecKey getSk() {
-		return sk;
-	}
-	
-	/**
-	 * Returns the public key f this key pair.
-	 * @return the public key
-	 */
-	public RainbowPubKey getPk() {
-		return pk;
-	}
+        } catch (Exception ex) {
 
-	public static void main(String[] args) {
-		long time = System.nanoTime();
-		RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
-		System.out.println("Tempo: "+(System.nanoTime()-time)/1000);
-		keys.saveKeys("pk.txt", "sk.txt");
-		//RainbowKeyPair keys = new RainbowKeyPair("pk.txt", "sk.txt");
-		RainbowSecKey sk = keys.sk;
-		RainbowPubKey pk = keys.pk;
-		//System.out.println("Chiavi generate");
-		
-		//System.out.println("Genero vettore casuale...");
-		byte[] x = new byte[96];
-		SecureRandom random = new SecureRandom();
-		
-		int c = 0;
+            ex.printStackTrace();
+
+        } finally {
+
+            if (fout != null) {
+                try {
+                    fout.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Returns the private key f this key pair.
+     *
+     * @return the private key
+     */
+    public RainbowSecKey getSk() {
+        return sk;
+    }
+
+    /**
+     * Returns the public key f this key pair.
+     *
+     * @return the public key
+     */
+    public RainbowPubKey getPk() {
+        return pk;
+    }
+
+    public static void main(String[] args) {
+        long time = System.nanoTime();
+        RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
+        System.out.println("Tempo: " + (System.nanoTime() - time) / 1000);
+        keys.saveKeys("pk.txt", "sk.txt");
+        //RainbowKeyPair keys = new RainbowKeyPair("pk.txt", "sk.txt");
+        RainbowSecKey sk = keys.sk;
+        RainbowPubKey pk = keys.pk;
+        //System.out.println("Chiavi generate");
+
+        //System.out.println("Genero vettore casuale...");
+        byte[] x = new byte[96];
+        SecureRandom random = new SecureRandom();
+
+        int c = 0;
 		/*while(true) {
 			for (int i = 0; i < 96; i++) {
 				x[i] = (byte)random.nextInt(16);
@@ -169,6 +175,6 @@ class RainbowKeyPair {
 			}
 			c++;
 		}*/
-	}
+    }
 
 }
