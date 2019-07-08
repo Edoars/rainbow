@@ -8,7 +8,11 @@ class RainbowParameters {
     /**
      * Contains the parameters for the Rainbow signature scheme: v1,o1,o2
      */
-    private final byte[] parameters = {32, 32, 32}; //{32,32,32};
+    private final byte[] parameters = {1,1,1}; //{32,32,32};
+
+    public static final String PARAM_STRING = "Rainbow(16,32,32,32)";
+    public static final String HASH_SIZE = "32 bytes";
+    public static final String SIGNATURE_SIZE = "48 bytes";
 
     /**
      * Returns an array containing all the parameters of the scheme.

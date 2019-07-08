@@ -27,6 +27,14 @@ public class RainbowPubKey implements Serializable {
      */
     private int n, m;
 
+    public int getVarNum() {
+        return n;
+    }
+
+    public int getEqNum() {
+        return m;
+    }
+
     /**
      * Constructor, generates the system of polynomials {@code P}, corresponding to the composition of the secret key maps.
      *

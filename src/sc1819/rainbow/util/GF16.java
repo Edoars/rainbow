@@ -22,12 +22,12 @@ public class GF16 {
      * this lookup table is needed for multiplication and computing the
      * multiplicative inverse
      */
-    private static final byte[] expsTable = {1, 2, 4, 8, 3, 6, 12, 11, 5, 10, 7, 14, 15, 13, 9, 1};
+    static final byte[] expsTable = {1, 2, 4, 8, 3, 6, 12, 11, 5, 10, 7, 14, 15, 13, 9, 1};
     /**
      * this lookup table is needed for multiplication and computing the
      * multiplicative inverse
      */
-    private static final byte[] logsTable = {-1, 0, 1, 4, 2, 8, 5, 10, 3, 14, 9, 7, 6, 13, 11, 12};
+    static final byte[] logsTable = {-1, 0, 1, 4, 2, 8, 5, 10, 3, 14, 9, 7, 6, 13, 11, 12};
 
     /**
      * Returns the sum of two field elements, computed casting into byte.

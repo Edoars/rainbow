@@ -1,6 +1,7 @@
 package sc1819.rainbow.util;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
@@ -129,7 +130,7 @@ public class AffineMap implements Serializable {
     }
 
     public static void main(String[] args) {
-        int size = 5;
+        int size = 2;
         SecureRandom random = new SecureRandom();
         AffineMap A = new AffineMap(size, random);
         byte[] x = new byte[size];
@@ -139,8 +140,14 @@ public class AffineMap implements Serializable {
         A.eval(x);
         byte[] y = A.eval(x);
 
-        System.out.println(Arrays.toString(x));
-        System.out.println(Arrays.toString(y));
+        for (int i = 0; i < A.matrix.length; i++) {
+            System.out.println(Arrays.toString(A.matrix[i]));
+        }
+        System.out.println();
+        System.out.println(Arrays.toString(A.vector));
+        System.out.println();
+        System.out.println("x = " + Arrays.toString(x));
+        System.out.println("A(x) = " + Arrays.toString(y));
 
         byte[] z = new byte[size];
         for (int i = 0; i < size; i++) {

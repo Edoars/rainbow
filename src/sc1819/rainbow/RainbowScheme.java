@@ -47,14 +47,14 @@ public class RainbowScheme {
     public static void sign(String skPath, String filePath, String signaturePath) {
         RainbowSecKey sk = RainbowSecKey.loadKey(skPath);
 
-        byte[] signature = hashFile(filePath);
+        byte[] signature = hashFile(filePath, sk.getEqNum());
         signature = sk.getS().evalInv(signature);
         signature = sk.getF().invF(signature);
         signature = sk.getT().evalInv(signature);
 
         saveSignature(signature, signaturePath);
 
-        System.out.print("Rainbow(16,32,32,32) = ");
+        System.out.print(RainbowParameters.PARAM_STRING + " = ");
         System.out.println(GF16.toHex(signature));
     }
 
@@ -69,11 +69,11 @@ public class RainbowScheme {
     public static boolean verify(String pkPath, String filePath, String signaturePath) {
         RainbowPubKey pk = RainbowPubKey.loadKey(pkPath);
 
-        byte[] h = hashFile(filePath);
+        byte[] h = hashFile(filePath, pk.getEqNum());
 
         byte[] signature = loadSignature(signaturePath);
 
-        if (signature.length != 96) {
+        if (signature.length != pk.getVarNum()) {
             System.out.println(signaturePath + " is not a valid signature!");
             System.exit(1);
         }
@@ -88,7 +88,7 @@ public class RainbowScheme {
      * @param fileName the path of the file to be hashed
      * @return the hash of the file
      */
-    public static byte[] hashFile(String fileName) {
+    public static byte[] hashFile(String fileName, int size) {
         byte[] buffer = new byte[8192];
         int count;
         MessageDigest digest = null;
@@ -112,11 +112,11 @@ public class RainbowScheme {
         }
 
         byte[] res = digest.digest();
-        byte[] resHalf = new byte[64];
+        byte[] resHalf = new byte[size];
 
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < size/2; i++) {
             resHalf[i] = (byte) ((res[i] & 0xf0) >> 4);
-            resHalf[i + 32] = (byte) (res[i] & 0x0f);
+            resHalf[i + size/2] = (byte) (res[i] & 0x0f);
         }
 
         return resHalf;
@@ -238,9 +238,9 @@ public class RainbowScheme {
                 System.exit(1);
             }
 
-            System.out.println("Rainbow(16,32,32,32)");
-            System.out.println("Hash size: 32 bytes");
-            System.out.println("Signature size: 48 bytes");
+            System.out.print(RainbowParameters.PARAM_STRING + " = ");
+            System.out.println("Hash size: " + RainbowParameters.HASH_SIZE);
+            System.out.println("Signature size: " + RainbowParameters.SIGNATURE_SIZE);
             System.out.println("Generating keys...");
             RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
             System.out.println("Keys generated");
@@ -267,8 +267,8 @@ public class RainbowScheme {
             String signaturePath = cmd.getOptionValues("verify")[2];
 
             if (RainbowScheme.verify(pkPath, filePath, signaturePath))
-                System.out.println("Rainbow(16,32,32,32) verification success");
-            else System.out.println("Rainbow(16,32,32,32) verification fail");
+                System.out.println(RainbowParameters.PARAM_STRING + " verification success");
+            else System.out.println(RainbowParameters.PARAM_STRING + " verification fail");
         } else {
             formatter.printHelp("RainbowScheme", options, true);
         }
