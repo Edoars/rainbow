@@ -26,6 +26,8 @@ import java.util.Arrays;
  */
 public class RainbowScheme {
 
+    private static RainbowParameters PARAMETERS = new RainbowParameters();
+
     /**
      * Generates a key pair. Writes both keys on files.
      *
@@ -33,7 +35,7 @@ public class RainbowScheme {
      * @param skPath the path of the file on which the private key is written
      */
     public static void keygen(String pkPath, String skPath) {
-        RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
+        RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, new SecureRandom());
         keys.saveKeys(pkPath, skPath);
     }
 
@@ -54,7 +56,7 @@ public class RainbowScheme {
 
         saveSignature(signature, signaturePath);
 
-        System.out.print(RainbowParameters.PARAM_STRING + " = ");
+        System.out.print(PARAMETERS.getParamString() + " = ");
         System.out.println(GF16.toHex(signature));
     }
 
@@ -215,6 +217,12 @@ public class RainbowScheme {
                 .build();
         options.addOption(verify);
 
+        Option debug = Option.builder(null)
+                .desc("Use a reduced version of rainbow. For test purposes only")
+                .longOpt("debug")
+                .build();
+        options.addOption(debug);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
@@ -229,6 +237,10 @@ public class RainbowScheme {
             return;
         }
 
+        if (cmd.hasOption("debug")) {
+            PARAMETERS = new RainbowParameters(1,1,2);
+        }
+
         if (cmd.hasOption("keygen") && !cmd.hasOption("sign") && !cmd.hasOption("verify")) {
             String pkFileName = cmd.getOptionValues("keygen")[0];
             String skFileName = cmd.getOptionValues("keygen")[1];
@@ -238,11 +250,11 @@ public class RainbowScheme {
                 System.exit(1);
             }
 
-            System.out.print(RainbowParameters.PARAM_STRING + " = ");
-            System.out.println("Hash size: " + RainbowParameters.HASH_SIZE);
-            System.out.println("Signature size: " + RainbowParameters.SIGNATURE_SIZE);
+            System.out.print(PARAMETERS.getParamString() + " = ");
+            System.out.println("Hash size: " + PARAMETERS.getHashSizeString());
+            System.out.println("Signature size: " + PARAMETERS.getSignatureSizeString());
             System.out.println("Generating keys...");
-            RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
+            RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, new SecureRandom());
             System.out.println("Keys generated");
             keys.saveKeys(pkFileName, skFileName);
             File pkFile = new File(pkFileName);
@@ -267,8 +279,8 @@ public class RainbowScheme {
             String signaturePath = cmd.getOptionValues("verify")[2];
 
             if (RainbowScheme.verify(pkPath, filePath, signaturePath))
-                System.out.println(RainbowParameters.PARAM_STRING + " verification success");
-            else System.out.println(RainbowParameters.PARAM_STRING + " verification fail");
+                System.out.println(PARAMETERS.getParamString() + " verification success");
+            else System.out.println(PARAMETERS.getParamString() + " verification fail");
         } else {
             formatter.printHelp("RainbowScheme", options, true);
         }

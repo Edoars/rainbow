@@ -3,24 +3,27 @@ package sc1819.rainbow;
 /**
  * This class is used to easily retrieve the parameters of the Rainbow signature scheme.
  */
-class RainbowParameters {
+public class RainbowParameters {
 
     /**
      * Contains the parameters for the Rainbow signature scheme: v1,o1,o2
      */
-    private final byte[] parameters = {1,1,1}; //{32,32,32};
+    private int[] parameters;
 
-    public static final String PARAM_STRING = "Rainbow(16,32,32,32)";
-    public static final String HASH_SIZE = "32 bytes";
-    public static final String SIGNATURE_SIZE = "48 bytes";
+    private String paramString;
+    private String hashString;
+    private String signatureString;
 
-    /**
-     * Returns an array containing all the parameters of the scheme.
-     *
-     * @return the array of parameters
-     */
-    public byte[] getParameters() {
-        return parameters;
+    public RainbowParameters() {
+        this(32,32,32);
+    }
+
+    public RainbowParameters(int v1, int o1, int o2) {
+        parameters = new int[]{v1, o1, o2};
+
+        paramString = "Rainbow(16," + parameters[0] + "," + parameters[1] + "," + parameters[2] + ")";
+        hashString = (parameters[0] + parameters[1]) / 2 + " bytes";
+        signatureString = (parameters[0] + parameters[1] + parameters[2]) / 2 + " bytes";
     }
 
     /**
@@ -29,7 +32,7 @@ class RainbowParameters {
      * @return v1
      */
     public byte getv1() {
-        return parameters[0];
+        return (byte) parameters[0];
     }
 
     /**
@@ -38,7 +41,7 @@ class RainbowParameters {
      * @return o1
      */
     public byte geto1() {
-        return parameters[1];
+        return (byte) parameters[1];
     }
 
     /**
@@ -47,6 +50,18 @@ class RainbowParameters {
      * @return o2
      */
     public byte geto2() {
-        return parameters[2];
+        return (byte) parameters[2];
+    }
+
+    public String getParamString() {
+        return paramString;
+    }
+
+    public String getHashSizeString() {
+        return hashString;
+    }
+
+    public String getSignatureSizeString() {
+        return signatureString;
     }
 }

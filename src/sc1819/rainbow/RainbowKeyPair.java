@@ -21,10 +21,6 @@ class RainbowKeyPair {
      * The private key of this key pair.
      */
     private RainbowSecKey sk;
-    /**
-     * The parameters of this Rainbow key pair.
-     */
-    private RainbowParameters param = new RainbowParameters();
 
     /**
      * Constructor, loads a secret key and a public key from two files.
@@ -46,7 +42,7 @@ class RainbowKeyPair {
      *
      * @param random the source of random field elements
      */
-    public RainbowKeyPair(SecureRandom random) {
+    public RainbowKeyPair(RainbowParameters param, SecureRandom random) {
         this.sk = new RainbowSecKey(param, random);
         this.pk = new RainbowPubKey(sk);
     }
@@ -128,7 +124,7 @@ class RainbowKeyPair {
 
     public static void main(String[] args) {
         long time = System.nanoTime();
-        RainbowKeyPair keys = new RainbowKeyPair(new SecureRandom());
+        RainbowKeyPair keys = new RainbowKeyPair(new RainbowParameters(), new SecureRandom());
         System.out.println("Tempo: " + (System.nanoTime() - time) / 1000);
         keys.saveKeys("pk.txt", "sk.txt");
         //RainbowKeyPair keys = new RainbowKeyPair("pk.txt", "sk.txt");
