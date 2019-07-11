@@ -17,17 +17,17 @@ package sc1819.rainbow.util;
 public class GF16 {
     //GF(16) = F2[x]/(x^4+x+1)
     //a3*x^3+a2*x^2+a1*x+a0 -> (a3,a2,a1,a0) binario
-    //                                0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+    //                                       0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
     /**
      * this lookup table is needed for multiplication and computing the
      * multiplicative inverse
      */
-    static final byte[] expsTable = {1, 2, 4, 8, 3, 6, 12, 11, 5, 10, 7, 14, 15, 13, 9, 1};
+    public static final byte[] expsTable = {1, 2, 4, 8, 3, 6, 12, 11, 5, 10, 7, 14, 15, 13, 9, 1};
     /**
      * this lookup table is needed for multiplication and computing the
      * multiplicative inverse
      */
-    static final byte[] logsTable = {-1, 0, 1, 4, 2, 8, 5, 10, 3, 14, 9, 7, 6, 13, 11, 12};
+    public static final byte[] logsTable = {-1, 0, 1, 4, 2, 8, 5, 10, 3, 14, 9, 7, 6, 13, 11, 12};
 
     /**
      * Returns the sum of two field elements, computed casting into byte.

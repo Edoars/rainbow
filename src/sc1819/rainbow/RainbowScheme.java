@@ -240,7 +240,7 @@ public class RainbowScheme {
         }
 
         if (cmd.hasOption("debug")) {
-            PARAMETERS = new RainbowParameters(1,1,2);
+            PARAMETERS = new RainbowParameters(2, 1, 1);
             RANDOM = new FixedRand();
         }
 
@@ -257,9 +257,8 @@ public class RainbowScheme {
             System.out.println("Hash size: " + PARAMETERS.getHashSizeString());
             System.out.println("Signature size: " + PARAMETERS.getSignatureSizeString());
             System.out.println("Generating keys...");
-            RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, RANDOM);
+            RainbowScheme.keygen(pkFileName, skFileName);
             System.out.println("Keys generated");
-            keys.saveKeys(pkFileName, skFileName);
             File pkFile = new File(pkFileName);
             System.out.println("Private key size: " + pkFile.length() + " bytes");
             File skFile = new File(skFileName);

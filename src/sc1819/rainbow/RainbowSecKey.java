@@ -20,7 +20,7 @@ import java.security.SecureRandom;
  * </ul>
  * This class also provides a method for loading a secret key from a file.
  */
-class RainbowSecKey implements Serializable {
+public class RainbowSecKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
 

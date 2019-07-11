@@ -42,33 +42,6 @@ public class CentralMap implements Serializable {
         layers[1] = new Layer(v1 + o1, o2, random);
     }
 
-    public static void main(String[] args) {
-		/*SecureRandom random = new SecureRandom();
-		CentralMap F = new CentralMap(1, 1, 1, random);
-		int m = 2, n = 3;
-		byte[] y = new byte[m];
-		byte[] x;
-		int c = 1;
-		while (true) {
-			for (int i = 0; i < m; i++) {
-				y[i] = (byte)random.nextInt(16);
-			}
-			x = F.invF(y);
-			if (Arrays.equals(F.eval(x), y)) {
-				System.out.println(c+": Ok");
-			} else {
-				System.out.println(c+": False!");
-				Debug d = new Debug();
-				d.centralMapEval(F, 9, x);
-				System.out.println("y: "+Arrays.toString(y));
-				System.out.println("x: "+Arrays.toString(x));
-				System.out.println("f(x): "+Arrays.toString(F.eval(x)));
-				break;
-			}
-			c++;
-		}*/
-    }
-
     /**
      * Returns the result of evaluating the central map on an array of field elements.
      *

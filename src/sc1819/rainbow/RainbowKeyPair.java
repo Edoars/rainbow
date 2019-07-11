@@ -11,7 +11,7 @@ import java.security.SecureRandom;
  * <p>
  * There are methods for loading and writing keys, from and to files, provided in this method.
  */
-class RainbowKeyPair {
+public class RainbowKeyPair {
 
     /**
      * The public key of this key pair.
