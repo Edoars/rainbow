@@ -108,9 +108,7 @@ public class CentralMap implements Serializable {
      * @param y the result of an evaluation of this map
      * @return an array such that when this map is evaluated on it the result is {@code input}
      */
-    public byte[] invF(byte[] y) {
-        SecureRandom random = new SecureRandom();
-
+    public byte[] invF(byte[] y, SecureRandom random) {
         byte[] randomVector = new byte[v1];
 
         byte[] resOil1;

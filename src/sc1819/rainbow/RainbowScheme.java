@@ -1,6 +1,7 @@
 package sc1819.rainbow;
 
 import org.apache.commons.cli.*;
+import sc1819.rainbow.debug.FixedRand;
 import sc1819.rainbow.util.GF16;
 
 import java.io.*;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 public class RainbowScheme {
 
     private static RainbowParameters PARAMETERS = new RainbowParameters();
+    private static SecureRandom RANDOM = new SecureRandom();
 
     /**
      * Generates a key pair. Writes both keys on files.
@@ -35,7 +37,7 @@ public class RainbowScheme {
      * @param skPath the path of the file on which the private key is written
      */
     public static void keygen(String pkPath, String skPath) {
-        RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, new SecureRandom());
+        RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, RANDOM);
         keys.saveKeys(pkPath, skPath);
     }
 
@@ -51,7 +53,7 @@ public class RainbowScheme {
 
         byte[] signature = hashFile(filePath, sk.getEqNum());
         signature = sk.getS().evalInv(signature);
-        signature = sk.getF().invF(signature);
+        signature = sk.getF().invF(signature, RANDOM);
         signature = sk.getT().evalInv(signature);
 
         saveSignature(signature, signaturePath);
@@ -218,7 +220,7 @@ public class RainbowScheme {
         options.addOption(verify);
 
         Option debug = Option.builder(null)
-                .desc("Use a reduced version of rainbow. For test purposes only")
+                .desc("Use a reduced and deterministic version of rainbow. For test purposes only")
                 .longOpt("debug")
                 .build();
         options.addOption(debug);
@@ -239,6 +241,7 @@ public class RainbowScheme {
 
         if (cmd.hasOption("debug")) {
             PARAMETERS = new RainbowParameters(1,1,2);
+            RANDOM = new FixedRand();
         }
 
         if (cmd.hasOption("keygen") && !cmd.hasOption("sign") && !cmd.hasOption("verify")) {
@@ -254,7 +257,7 @@ public class RainbowScheme {
             System.out.println("Hash size: " + PARAMETERS.getHashSizeString());
             System.out.println("Signature size: " + PARAMETERS.getSignatureSizeString());
             System.out.println("Generating keys...");
-            RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, new SecureRandom());
+            RainbowKeyPair keys = new RainbowKeyPair(PARAMETERS, RANDOM);
             System.out.println("Keys generated");
             keys.saveKeys(pkFileName, skFileName);
             File pkFile = new File(pkFileName);
