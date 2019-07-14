@@ -160,7 +160,7 @@ public class RainbowScheme {
         }
     }
 
-    private static byte[] loadSignature(String signaturePath) {
+    public static byte[] loadSignature(String signaturePath) {
         File signatureFile = new File(signaturePath);
         byte[] signature = new byte[(int) signatureFile.length()];
 

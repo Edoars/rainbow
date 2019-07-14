@@ -331,6 +331,15 @@ public class RainbowPubKey implements Serializable {
         return pk;
     }
 
+    /**
+     * Returns the polynomials that composes the public key.
+     *
+     * @return P
+     */
+    public MultQuad[] getPoly() {
+        return P;
+    }
+
     public static void main(String[] args) {
 
     }
