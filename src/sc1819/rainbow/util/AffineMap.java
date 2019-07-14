@@ -1,9 +1,7 @@
 package sc1819.rainbow.util;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 /**
  * This class represents an affine map in G16, consisting of a matrix part M and a vectorial part v, hence evaluating such a map on x would mean computing Mx+v.
@@ -127,34 +125,5 @@ public class AffineMap implements Serializable {
      */
     public byte[] getVector() {
         return vector;
-    }
-
-    public static void main(String[] args) {
-        int size = 2;
-        SecureRandom random = new SecureRandom();
-        AffineMap A = new AffineMap(size, random);
-        byte[] x = new byte[size];
-        for (int i = 0; i < size; i++) {
-            x[i] = (byte) random.nextInt(16);
-        }
-        A.eval(x);
-        byte[] y = A.eval(x);
-
-        for (int i = 0; i < A.matrix.length; i++) {
-            System.out.println(Arrays.toString(A.matrix[i]));
-        }
-        System.out.println();
-        System.out.println(Arrays.toString(A.vector));
-        System.out.println();
-        System.out.println("x = " + Arrays.toString(x));
-        System.out.println("A(x) = " + Arrays.toString(y));
-
-        byte[] z = new byte[size];
-        for (int i = 0; i < size; i++) {
-            z[i] = GF16.add(y[i], A.vector[i]);
-        }
-        z = GF16.prodMatVec(A.inverse, z);
-        System.out.println(Arrays.toString(z));
-        System.out.println(Arrays.toString(A.evalInv(y)));
     }
 }

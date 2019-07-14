@@ -303,13 +303,5 @@ public class GF16 {
 
         return buf.toString();
     }
-
-    public static void main(String[] args) {
-        byte x = 0, y = 8; //(x+1)*x^3 = x^3+x+1 =11
-        System.out.println("x+y = " + GF16.add(x, y));
-        System.out.println("x*y = " + GF16.mult(x, y));
-        System.out.println("x^-1 = " + GF16.inv(x));
-        System.out.println("y^-1 = " + GF16.inv(y));
-    }
 }
 

@@ -339,8 +339,4 @@ public class RainbowPubKey implements Serializable {
     public MultQuad[] getPoly() {
         return P;
     }
-
-    public static void main(String[] args) {
-
-    }
 }

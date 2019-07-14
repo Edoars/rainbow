@@ -1,6 +1,6 @@
 *
 !src/
 !src/**
-src/META-INF
+
 !.gitignore
 !rainbow.iml

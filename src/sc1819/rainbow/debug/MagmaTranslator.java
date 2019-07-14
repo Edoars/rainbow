@@ -103,7 +103,6 @@ public class MagmaTranslator {
         sb.append("//");
         sb.append(System.lineSeparator());
 
-        sb.append("f_comp_t := &cat[[Evaluate(f[i], t) : i in [1..2]],[0,0]];");
         sb.append("f_comp_t := &cat[[Evaluate(f[i], t) : i in [1.." + this.m + "]],");
         sb.append("[0 : i in [1.." + (this.n - this.m) + "]]];");
         sb.append(System.lineSeparator());

@@ -132,10 +132,4 @@ public class Layer implements Serializable {
     public int getOi() {
         return oi;
     }
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

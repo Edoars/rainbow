@@ -153,5 +153,4 @@ public class CentralMap implements Serializable {
 
         return GF16.SolveSys(matrix, vector);
     }
-
 }
