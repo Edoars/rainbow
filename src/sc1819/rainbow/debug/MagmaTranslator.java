@@ -1,12 +1,15 @@
 package sc1819.rainbow.debug;
 
+import org.apache.commons.cli.*;
 import sc1819.rainbow.RainbowKeyPair;
 import sc1819.rainbow.RainbowPubKey;
 import sc1819.rainbow.RainbowScheme;
 import sc1819.rainbow.RainbowSecKey;
 import sc1819.rainbow.util.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class MagmaTranslator {
@@ -21,6 +24,13 @@ public class MagmaTranslator {
 
         this.m = secKey.getEqNum();
         this.n = secKey.getVarNum();
+    }
+
+    public MagmaTranslator(RainbowPubKey pubKey) {
+        this.pubKey = pubKey;
+
+        this.m = pubKey.getEqNum();
+        this.n = pubKey.getVarNum();
     }
 
     public String setup() {
@@ -147,6 +157,7 @@ public class MagmaTranslator {
         sb.deleteCharAt(sb.length() - 1);
         sb.append("];");
         sb.append(System.lineSeparator());
+        sb.append(System.lineSeparator());
 
 
         sb.append("//");
@@ -164,6 +175,7 @@ public class MagmaTranslator {
         }
         sb.deleteCharAt(sb.length() - 1);
         sb.append("];");
+        sb.append(System.lineSeparator());
         sb.append(System.lineSeparator());
 
 
@@ -412,51 +424,84 @@ public class MagmaTranslator {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        /*MagmaTranslator d = new MagmaTranslator();
-        int size = 4;
-        byte[] x = new byte[size];
-        SecureRandom random = new FixedRand();
-        for (int i = 0; i < size; i++) {
-            x[i] = (byte) random.nextInt(16);
+        Options options = new Options();
+
+        Option keys = Option.builder("k")
+                .argName("pk sk out")
+                .hasArgs()
+                .numberOfArgs(3)
+                .valueSeparator(' ')
+                .desc("Verify that a rainbow public key is obtained from a rainbow private key with magma")
+                .longOpt("verify-keys")
+                .build();
+        options.addOption(keys);
+
+        Option verify = Option.builder("v")
+                .argName("pk file signature out")
+                .hasArgs()
+                .numberOfArgs(4)
+                .valueSeparator(' ')
+                .desc("Verify an existing rainbow signature with magma")
+                .longOpt("verify-signature")
+                .build();
+        options.addOption(verify);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException ex) {
+            System.out.println(ex.getMessage());
+            formatter.printHelp("MagmaTranslator", options, true);
+
+            System.exit(1);
+            return;
         }
 
-        RainbowSecKey sk = RainbowSecKey.loadKey("sk.txt");
-        d.centralMapEval(sk.getF(), x);*/
+        if (cmd.hasOption("verify-keys") && !cmd.hasOption("verify-signature")) {
+            String pkPath = cmd.getOptionValues("verify-keys")[0];
+            String skPath = cmd.getOptionValues("verify-keys")[1];
+            String outPath = cmd.getOptionValues("verify-keys")[2];
 
-        /*RainbowKeyPair keyPair = new RainbowKeyPair("pk.txt", "sk.txt");
-        MagmaTranslator translator = new MagmaTranslator(keyPair);
+            File outFile = new File(outPath);
+            if (outFile.isFile()) {
+                System.out.println(outPath + " is an existing file!");
+                System.exit(1);
+            }
 
-        System.out.println(translator.setup());
+            RainbowKeyPair keyPair = new RainbowKeyPair(pkPath, skPath);
+            MagmaTranslator translator = new MagmaTranslator(keyPair);
 
-        RainbowSecKey secKey = keyPair.getSk();
+            String outData = translator.translateKeyGeneration();
 
-        System.out.println(translator.translateAffineMap(secKey.getS(), "s"));
-        System.out.println(translator.translateCentralMap(secKey.getF(),"f"));
-        System.out.println(translator.translateAffineMap(secKey.getT(), "t"));
+            PrintStream ps = new PrintStream(outPath);
+            System.setOut(ps);
+            System.out.println(outData);
+        } else if (!cmd.hasOption("verify-keys") && cmd.hasOption("verify-signature")) {
+            String pkPath = cmd.getOptionValues("verify-signature")[0];
+            String filePath = cmd.getOptionValues("verify-signature")[1];
+            String signaturePath = cmd.getOptionValues("verify-signature")[2];
+            String outPath = cmd.getOptionValues("verify-signature")[3];
 
-        RainbowPubKey pubKey = keyPair.getPk();
-        System.out.println(translator.translatePublicKey(pubKey, "g"));*/
+            File outFile = new File(outPath);
+            if (outFile.isFile()) {
+                System.out.println(outPath + " is an existing file!");
+                System.exit(1);
+            }
 
-        /*byte[] x = new byte[]{2,3,2,4};
-        byte[] res = T.eval(x);
-        System.out.println("x: " + Arrays.toString(x));
-        System.out.println("F(x): " + Arrays.toString(res));
-        System.out.print("Log: [");
-        for (int i = 0; i < res.length - 1; i++) {
-            System.out.print(GF16.logsTable[res[i]] + ", ");
+            RainbowPubKey pubKey = RainbowPubKey.loadKey(pkPath);
+            MagmaTranslator translator = new MagmaTranslator(pubKey);
+
+            String outData = translator.translateVerify(filePath, signaturePath);
+
+            PrintStream ps = new PrintStream(outPath);
+            System.setOut(ps);
+            System.out.println(outData);
+        } else {
+            formatter.printHelp("MagmaTranslator", options, true);
         }
-        System.out.println(GF16.logsTable[res[res.length - 1]] + "]");*/
-
-        RainbowKeyPair keyPair = new RainbowKeyPair("pk.txt", "sk.txt");
-        MagmaTranslator translator = new MagmaTranslator(keyPair);
-
-        System.out.println(translator.translateVerify("test.txt", "test.sig"));
-        /*PrintStream ps = new PrintStream("out.txt");
-        System.setOut(ps);
-
-        System.out.println(translator.translateKeyGeneration());*/
-
-
     }
 
 }
