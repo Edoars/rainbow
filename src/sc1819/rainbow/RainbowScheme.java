@@ -90,6 +90,7 @@ public class RainbowScheme {
      * This methods computes the hash of a file using SHA-256. (this is needed to generate a file signature)
      *
      * @param fileName the path of the file to be hashed
+     * @param size the size of the digest
      * @return the hash of the file
      */
     public static byte[] hashFile(String fileName, int size) {

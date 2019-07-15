@@ -40,6 +40,7 @@ public class RainbowKeyPair {
     /**
      * Constructor, given a source of random field elements, generates a key pair.
      *
+     * @param param the parameters of the scheme
      * @param random the source of random field elements
      */
     public RainbowKeyPair(RainbowParameters param, SecureRandom random) {

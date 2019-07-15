@@ -79,6 +79,7 @@ public class CentralMap implements Serializable {
      * Returns an array x such that, given input y and being F this central map then y=F(x).
      *
      * @param y the result of an evaluation of this map
+     * @param random the source of random field elements
      * @return an array such that when this map is evaluated on it the result is {@code input}
      */
     public byte[] invF(byte[] y, SecureRandom random) {
